@@ -1,5 +1,7 @@
 package io.github.erfangc.raincove.finser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,6 +11,9 @@ import java.time.Instant;
 
 @ControllerAdvice
 public class FinserControllerAdvice {
+
+    private static Logger logger = LoggerFactory.getLogger(FinserControllerAdvice.class);
+
     @ExceptionHandler
     public ResponseEntity<ApiError> handleException(ApiException apiException) {
         final HttpStatus httpStatus = apiException.getHttpStatus();
@@ -23,6 +28,8 @@ public class FinserControllerAdvice {
         ApiError responseBody = new ApiError()
                 .setMessage("An error has occured on the server")
                 .setTimestamp(now);
+        logger.error("Unexpected error encountered while handling request, message={}", e.getMessage());
+        e.printStackTrace();
         return new ResponseEntity<>(responseBody, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

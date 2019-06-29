@@ -1,7 +1,7 @@
 package io.github.erfangc.raincove.finser.models;
 
 
-public class DeleteFinancialStatementsResponse {
+public class DeleteFinancialStatementsResponse extends DeleteFinancialStatementResponse {
 
     private String message;
     private String timestamp;

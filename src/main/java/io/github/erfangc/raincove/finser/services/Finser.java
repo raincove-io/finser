@@ -21,6 +21,7 @@ public class Finser {
     private static final Logger logger = LoggerFactory.getLogger(Finser.class);
     private FinancialStatementRepository statementRepository;
     private CompaniesRepository companiesRepository;
+    private String anonymous;
 
     public Finser(FinancialStatementRepository statementRepository, CompaniesRepository companiesRepository) {
         this.statementRepository = statementRepository;
@@ -31,19 +32,21 @@ public class Finser {
         final String now = Instant.now().toString();
         final Company company = body.getCompany();
         final String id = company.getId();
+
         final Optional<Company> existing = companiesRepository.findById(id);
+        final String name = principal != null ? principal.getName() : anonymous;
         if (existing.isPresent()) {
             final Company old = existing.get();
             company.setCreatedBy(old.getCreatedBy());
             company.setCreatedOn(old.getCreatedOn());
             company.setUpdatedOn(now);
-            company.setUpdatedBy(principal.getName());
+            company.setUpdatedBy(name);
             companiesRepository.save(company);
             logger.info("Updated company with id={}", id);
             return new CreateOrUpdateCompanyResponse().setMessage("Updated").setTimestamp(now);
         } else {
             company.setCreatedOn(now);
-            company.setCreatedBy(principal.getName());
+            company.setCreatedBy(name);
             companiesRepository.save(company);
             logger.info("Created company with id={}", id);
             return new CreateOrUpdateCompanyResponse().setMessage("Created").setTimestamp(now);
@@ -109,17 +112,18 @@ public class Finser {
         for (FinancialStatement financialStatement : financialStatements) {
             try {
                 final Optional<FinancialStatement> existing = statementRepository.findById(BasicMapId.id("companyId", companyId).with("id", financialStatement.getId()));
+                final String name = principal != null ? principal.getName() : anonymous;
                 if (existing.isPresent()) {
                     final FinancialStatement old = existing.get();
                     financialStatement.setCreatedBy(old.getCreatedBy());
                     financialStatement.setCreatedOn(old.getCreatedOn());
                     financialStatement.setUpdatedOn(now);
-                    financialStatement.setUpdatedBy(principal.getName());
+                    financialStatement.setUpdatedBy(name);
                     statementRepository.save(financialStatement);
                     updated++;
                 } else {
                     financialStatement.setCreatedOn(now);
-                    financialStatement.setCreatedBy(principal.getName());
+                    financialStatement.setCreatedBy(name);
                     statementRepository.save(financialStatement);
                     created++;
                 }

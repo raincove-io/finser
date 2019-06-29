@@ -12,6 +12,7 @@ import java.security.Principal;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@RequestMapping("/finser/api/v1")
 public class FinserController {
     private Finser finser;
 
