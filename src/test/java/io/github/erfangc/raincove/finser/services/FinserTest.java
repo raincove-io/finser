@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -31,7 +30,7 @@ public class FinserTest {
     @Autowired
     private CompaniesRepository companiesRepository;
     private Finser finser;
-    private Principal principal;
+    private String user;
 
     @BeforeClass
     public static void beforeClass() throws InterruptedException, IOException, TTransportException {
@@ -46,16 +45,16 @@ public class FinserTest {
     @Before
     public void setUp() {
         finser = new Finser(statementRepository, companiesRepository);
-        principal = () -> "emma";
+        user = "emma";
     }
 
     @Test
     public void createOrUpdateCompany() {
         CreateOrUpdateCompanyRequest body = new CreateOrUpdateCompanyRequest()
                 .setCompany(new Company().setId("MSFT").setSector("Technology"));
-        final CreateOrUpdateCompanyResponse resp = finser.createOrUpdateCompany(body, principal);
+        final CreateOrUpdateCompanyResponse resp = finser.createOrUpdateCompany(body, user);
         assertEquals("Created", resp.getMessage());
-        final CreateOrUpdateCompanyResponse resp2 = finser.createOrUpdateCompany(body, principal);
+        final CreateOrUpdateCompanyResponse resp2 = finser.createOrUpdateCompany(body, user);
         assertEquals("Updated", resp2.getMessage());
     }
 
@@ -63,7 +62,7 @@ public class FinserTest {
     public void getCompany() {
         CreateOrUpdateCompanyRequest body = new CreateOrUpdateCompanyRequest()
                 .setCompany(new Company().setId("MSFT").setSector("Technology"));
-        finser.createOrUpdateCompany(body, principal);
+        finser.createOrUpdateCompany(body, user);
         final GetCompanyResponse resp = finser.getCompany("MSFT");
         final Company company = resp.getCompany();
         assertEquals("MSFT", company.getId());
@@ -74,7 +73,7 @@ public class FinserTest {
     public void deleteCompany() {
         CreateOrUpdateCompanyRequest body = new CreateOrUpdateCompanyRequest()
                 .setCompany(new Company().setId("AAPL"));
-        finser.createOrUpdateCompany(body, principal);
+        finser.createOrUpdateCompany(body, user);
         final DeleteCompanyResponse resp = finser.deleteCompany("AAPL");
         assertEquals("Deleted", resp.getMessage());
         expectedException.expect(ApiException.class);
@@ -86,7 +85,7 @@ public class FinserTest {
     public void getFinancialStatements() {
         CreateOrUpdateFinancialStatementsRequest body = new CreateOrUpdateFinancialStatementsRequest()
                 .setFinancialStatements(Collections.singletonList(new FinancialStatement().setCompanyId("MSFT").setId("20160331-10K")));
-        finser.createOrUpdateFinancialStatements(body, "MSFT", principal);
+        finser.createOrUpdateFinancialStatements(body, "MSFT", user);
         final GetFinancialStatementsResponse resp = finser.getFinancialStatements("MSFT");
         assertEquals(1, resp.getFinancialStatements().size());
     }
@@ -95,7 +94,7 @@ public class FinserTest {
     public void deleteFinancialStatements() {
         CreateOrUpdateFinancialStatementsRequest body = new CreateOrUpdateFinancialStatementsRequest()
                 .setFinancialStatements(Collections.singletonList(new FinancialStatement().setCompanyId("AAPL").setId("20160331-10K")));
-        finser.createOrUpdateFinancialStatements(body, "AAPL", principal);
+        finser.createOrUpdateFinancialStatements(body, "AAPL", user);
         DeleteFinancialStatementsResponse resp = finser.deleteFinancialStatements("AAPL");
         assertEquals("Deleted 1 statements, 0 failed to delete", resp.getMessage());
         final GetFinancialStatementsResponse resp2 = finser.getFinancialStatements("AAPL");
@@ -106,9 +105,9 @@ public class FinserTest {
     public void createOrUpdateFinancialStatements() {
         CreateOrUpdateFinancialStatementsRequest body = new CreateOrUpdateFinancialStatementsRequest()
                 .setFinancialStatements(Collections.singletonList(new FinancialStatement().setCompanyId("AAPL").setId("20160331-10K")));
-        final CreateOrUpdateFinancialStatementsResponse resp = finser.createOrUpdateFinancialStatements(body, "AAPL", principal);
+        final CreateOrUpdateFinancialStatementsResponse resp = finser.createOrUpdateFinancialStatements(body, "AAPL", user);
         assertEquals("Created 1, updated 0, succeed 1, failed 0", resp.getMessage());
-        final CreateOrUpdateFinancialStatementsResponse resp2 = finser.createOrUpdateFinancialStatements(body, "AAPL", principal);
+        final CreateOrUpdateFinancialStatementsResponse resp2 = finser.createOrUpdateFinancialStatements(body, "AAPL", user);
         assertEquals("Created 0, updated 1, succeed 1, failed 0", resp2.getMessage());
     }
 
@@ -116,7 +115,7 @@ public class FinserTest {
     public void getFinancialStatement() {
         CreateOrUpdateFinancialStatementsRequest body = new CreateOrUpdateFinancialStatementsRequest()
                 .setFinancialStatements(Collections.singletonList(new FinancialStatement().setCompanyId("GE").setId("20160331-10K")));
-        finser.createOrUpdateFinancialStatements(body, "GE", principal);
+        finser.createOrUpdateFinancialStatements(body, "GE", user);
         final GetFinancialStatementResponse resp = finser.getFinancialStatement("GE", "20160331-10K");
         assertEquals("20160331-10K", resp.getFinancialStatement().getId());
     }
@@ -125,7 +124,7 @@ public class FinserTest {
     public void deleteFinancialStatement() {
         CreateOrUpdateFinancialStatementsRequest body = new CreateOrUpdateFinancialStatementsRequest()
                 .setFinancialStatements(Collections.singletonList(new FinancialStatement().setCompanyId("AAPL").setId("20160331-10K")));
-        finser.createOrUpdateFinancialStatements(body, "AAPL", principal);
+        finser.createOrUpdateFinancialStatements(body, "AAPL", user);
         final DeleteFinancialStatementResponse resp = finser.deleteFinancialStatement("AAPL", "20160331-10K");
         assertEquals("Deleted", resp.getMessage());
         expectedException.expect(ApiException.class);

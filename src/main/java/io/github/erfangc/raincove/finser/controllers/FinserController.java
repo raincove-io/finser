@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -22,8 +23,9 @@ public class FinserController {
 
     @RequestMapping(method = POST, path = "/companies")
     public CreateOrUpdateCompanyResponse createOrUpdateCompany(@RequestBody CreateOrUpdateCompanyRequest body,
-                                                               Principal principal) {
-        return finser.createOrUpdateCompany(body, principal);
+                                                               HttpServletRequest request) {
+        String user = request.getHeader("X-Forwarded-User");
+        return finser.createOrUpdateCompany(body, user);
     }
 
     @RequestMapping(method = GET, path = "/companies/{id}")
@@ -47,8 +49,9 @@ public class FinserController {
     }
 
     @RequestMapping(method = POST, path = "/companies/{companyId}/financial-statements")
-    public CreateOrUpdateFinancialStatementsResponse createOrUpdateFinancialStatements(@RequestBody CreateOrUpdateFinancialStatementsRequest body, @PathVariable String companyId, Principal principal) {
-        return finser.createOrUpdateFinancialStatements(body, companyId, principal);
+    public CreateOrUpdateFinancialStatementsResponse createOrUpdateFinancialStatements(@RequestBody CreateOrUpdateFinancialStatementsRequest body, @PathVariable String companyId, HttpServletRequest request) {
+        String user = request.getHeader("X-Forwarded-User");
+        return finser.createOrUpdateFinancialStatements(body, companyId, user);
     }
 
     @RequestMapping(method = GET, path = "/companies/{companyId}/financial-statements/{id}")

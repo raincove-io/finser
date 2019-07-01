@@ -10,7 +10,6 @@ import org.springframework.data.cassandra.core.mapping.BasicMapId;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -28,13 +27,13 @@ public class Finser {
         this.companiesRepository = companiesRepository;
     }
 
-    public CreateOrUpdateCompanyResponse createOrUpdateCompany(CreateOrUpdateCompanyRequest body, Principal principal) {
+    public CreateOrUpdateCompanyResponse createOrUpdateCompany(CreateOrUpdateCompanyRequest body, String user) {
         final String now = Instant.now().toString();
         final Company company = body.getCompany();
         final String id = company.getId();
 
         final Optional<Company> existing = companiesRepository.findById(id);
-        final String name = principal != null ? principal.getName() : anonymous;
+        final String name = user != null ? user : anonymous;
         if (existing.isPresent()) {
             final Company old = existing.get();
             company.setCreatedBy(old.getCreatedBy());
@@ -105,14 +104,14 @@ public class Finser {
                 .setTimestamp(now);
     }
 
-    public CreateOrUpdateFinancialStatementsResponse createOrUpdateFinancialStatements(CreateOrUpdateFinancialStatementsRequest body, String companyId, Principal principal) {
+    public CreateOrUpdateFinancialStatementsResponse createOrUpdateFinancialStatements(CreateOrUpdateFinancialStatementsRequest body, String companyId, String user) {
         final String now = Instant.now().toString();
         final List<FinancialStatement> financialStatements = body.getFinancialStatements();
         int succeed = 0, failed = 0, created = 0, updated = 0;
         for (FinancialStatement financialStatement : financialStatements) {
             try {
                 final Optional<FinancialStatement> existing = statementRepository.findById(BasicMapId.id("companyId", companyId).with("id", financialStatement.getId()));
-                final String name = principal != null ? principal.getName() : anonymous;
+                final String name = user != null ? user : anonymous;
                 if (existing.isPresent()) {
                     final FinancialStatement old = existing.get();
                     financialStatement.setCreatedBy(old.getCreatedBy());
