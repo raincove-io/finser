@@ -18,6 +18,7 @@ public class FinserControllerAdvice {
     public ResponseEntity<ApiError> handleException(ApiException apiException) {
         final HttpStatus httpStatus = apiException.getHttpStatus();
         String now = Instant.now().toString();
+        logger.error("Error encountered while handling request, message={}, httpStatus={}", apiException.getMessage(), apiException.getHttpStatus());
         ApiError responseBody = new ApiError().setMessage(apiException.getMessage()).setTimestamp(now);
         return new ResponseEntity<>(responseBody, httpStatus);
     }
