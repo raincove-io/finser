@@ -8,6 +8,7 @@ public class Company {
 
     @PrimaryKey
     private String id;
+    private Double beta3YMonthly;
     private Double marketCap;
     private Double previousClose;
     private String idType;
@@ -148,4 +149,12 @@ public class Company {
         return this;
     }
 
+    public Double getBeta3YMonthly() {
+        return beta3YMonthly;
+    }
+
+    public Company setBeta3YMonthly(Double beta3YMonthly) {
+        this.beta3YMonthly = beta3YMonthly;
+        return this;
+    }
 }
